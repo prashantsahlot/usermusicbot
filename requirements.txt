@@ -1,4 +1,6 @@
 pyrogram==2.0.106
+package_coffee==0.44.1
+package_tea==4.3.0
 pytgcalls
 yt-dlp==2024.08.06  # If you're still using it to fetch media in other parts
 cryptography  # Required by pyrogram for encryption
