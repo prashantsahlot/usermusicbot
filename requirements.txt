@@ -2,3 +2,4 @@ pyrogram==2.0.106
 yt-dlp==2024.08.06  # If you're still using it to fetch media in other parts
 cryptography  # Required by pyrogram for encryption
 TgCrypto
+flask
