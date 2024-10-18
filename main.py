@@ -1,35 +1,74 @@
-from pytgcalls import PyTgCalls
-from pytgcalls import idle
-from pytgcalls.types import MediaStream
+import asyncio
+from collections import deque
+from random import randint
 from pyrogram import Client, filters
+from pyrogram.types import Message
 
 # Your session string
-session_string = "BQHDLbkAGk1NVxfUnxNAUfpaq6ygc242zXXDGSs1FDRJHRHBwmFK993Q7Yq-CorDxXgHWSenkFZ7wZG-noz7D44cjcCtzi7dwkwzkPiG4tjLHWSaeqRzgrpCn995k6i3s9bkQ1PFImNZ8sYRuW-dcrbFR53brHNfJCek-dT9-DGfKUvm1deBxEsg4NfQM3-p7ifXHt1jEh0cl1tL0RwY89vDu-3Ibr9J9g3hHNR1CC-75im2qZWiPIPFHIhVWqshUvIDYeGDEf9pgW-uTrrDPl87EZdX33Jehmf54YjlGkN2dgP3-0XfIhB1z5Hozl7jHW_Bl5husowsQT5-T-TWjkW_nEi9ngAAAAF_oc4VAA"
+session_string = "BQHDLbkAGypNFgSBge2_r0-6Qvt1baC1Z1lJAr9uCLSwsHYMXLwNXcg8hIcFlyqQ1n1IIJrVav0VykAmubEqUdqDdF3BM5JcZnqzZhxfAW2IKL9-rHakDVa9PBKvfGvh1SYlevChAnZbz99XnnUdjtOwdJozurglhLZ3dq6wOS55l4-X7hCtYw2kso0RHSdejynXtH1o6Z3sFEmIC_7QQfHCXHM1V95kEr3YcKBTmA4-O1GtxgbonQ0dc8sXulQx1gJRl8iPj9kI_Y09yZz2fwjsz0hClQsc1G1UhyRTwa-huTa3GH2Z-H7CtUVrHz5CNQPNXnvcoaDXoh49Hkdc1LX4872zegAAAAF_oc4VAA"
 
 # Change the path to where you want to save the session
-app = Client("my_bot", api_id=29568441, api_hash="b32ec0fb66d22da6f77d355fbace4f2a", session_string=session_string, workdir=r"C:\Users\PC\Documents\session.txt")
+app = Client("my_bot", api_id=29568441, api_hash="b32ec0fb66d22da6f77d355fbace4f2a", session_string=session_string)
 
-# Initialize PyTgCalls
-tg_calls_app = PyTgCalls(app)
+# Emoji definitions
+emojis = {
+    "moon": list("🌗🌘🌑🌒🌓🌔🌕🌖"),
+    "clock": list("🕙🕘🕗🕖🕕🕔🕓🕒🕑🕐🕛"),
+    "thunder": list("☀️🌤⛅️🌥☁️🌩🌧⛈⚡️🌩🌧🌦🌥⛅️🌤☀️"),
+    "earth": list("🌏🌍🌎🌎🌍🌏🌍🌎"),
+    "heart": list("❤️🧡💛💚💙💜🖤"),
+}
 
-# Start the client
-app.start()
-tg_calls_app.start()
+emoji_commands = [x for x in emojis]
 
-# Define the /play command handler
-@app.on_message(filters.command("play"))
-def play_command_handler(client, message):
-    # Use the specified streaming URL
-    video_url = 'http://docs.evostream.com/sample_content/assets/sintel1m720p.mp4'
-    
+# Emoji cycling command
+@app.on_message(filters.command(emoji_commands, ".") & filters.me)
+async def emoji_cycle(bot: Client, message: Message):
+    deq = deque(emojis[message.command[0]])
     try:
-        tg_calls_app.play(
-            message.chat.id,
-            MediaStream(video_url),
-        )
-        message.reply_text("🎥 Now playing the video!")
-    except Exception as e:
-        message.reply_text(f"An error occurred: {e}")
+        for _ in range(randint(16, 32)):
+            await asyncio.sleep(0.3)
+            await message.edit("".join(deq), parse_mode=None)
+            deq.rotate(1)
+    except Exception:
+        await message.delete()
 
-# Keep the script running
-idle()
+# Special emoji definitions
+special_emojis_dict = {
+    "target": {"emoji": "🎯", "help": "The special target emoji"},
+    "dice": {"emoji": "🎲", "help": "The special dice emoji"},
+    "bb": {"emoji": "🏀", "help": "The special basketball emoji"},
+    "soccer": {"emoji": "⚽️", "help": "The special football emoji"},
+}
+
+special_emoji_commands = [x for x in special_emojis_dict]
+
+# Special emojis command
+@app.on_message(filters.command(special_emoji_commands, ".") & filters.me)
+async def special_emojis(bot: Client, message: Message):
+    emoji = special_emojis_dict[message.command[0]]
+    await message.delete()
+    await bot.send_dice(message.chat.id, emoji["emoji"])
+
+# Help section for commands
+special_emoji_help = [
+    [".moon", "Cycles all the phases of the moon emojis."],
+    [".clock", "Cycles all the phases of the clock emojis."],
+    [".thunder", "Cycles thunder."],
+    [".heart", "Cycles heart emojis."],
+    [".earth or .globe", "Make the world go round."],
+]
+
+# Add help for special emojis
+for x in special_emojis_dict:
+    special_emoji_help.append([f".{x}", special_emojis_dict[x]["help"]])
+
+@app.on_message(filters.command("help") & filters.me)
+async def help_command(bot: Client, message: Message):
+    help_text = "Here are the available commands:\n"
+    for command, description in special_emoji_help:
+        help_text += f"{command}: {description}\n"
+    
+    await message.reply(help_text)
+
+app.run()
