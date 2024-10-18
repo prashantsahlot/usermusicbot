@@ -3,11 +3,29 @@ from collections import deque
 from random import randint
 from pyrogram import Client, filters
 from pyrogram.types import Message
+from flask import Flask
+from threading import Thread
+
+# Flask app to handle the port issue
+app_flask = Flask("")
+
+@app_flask.route("/")
+def home():
+    return "Bot is running!"
+
+# Function to run the Flask app on port 8080
+def run():
+    app_flask.run(host="0.0.0.0", port=8080)
+
+# Function to keep the Flask app running in a separate thread
+def keep_alive():
+    t = Thread(target=run)
+    t.start()
 
 # Your session string
 session_string = "BQHDLbkAGypNFgSBge2_r0-6Qvt1baC1Z1lJAr9uCLSwsHYMXLwNXcg8hIcFlyqQ1n1IIJrVav0VykAmubEqUdqDdF3BM5JcZnqzZhxfAW2IKL9-rHakDVa9PBKvfGvh1SYlevChAnZbz99XnnUdjtOwdJozurglhLZ3dq6wOS55l4-X7hCtYw2kso0RHSdejynXtH1o6Z3sFEmIC_7QQfHCXHM1V95kEr3YcKBTmA4-O1GtxgbonQ0dc8sXulQx1gJRl8iPj9kI_Y09yZz2fwjsz0hClQsc1G1UhyRTwa-huTa3GH2Z-H7CtUVrHz5CNQPNXnvcoaDXoh49Hkdc1LX4872zegAAAAF_oc4VAA"
 
-# Change the path to where you want to save the session
+# Initialize the Pyrogram Client
 app = Client("my_bot", api_id=29568441, api_hash="b32ec0fb66d22da6f77d355fbace4f2a", session_string=session_string)
 
 # Emoji definitions
@@ -71,4 +89,7 @@ async def help_command(bot: Client, message: Message):
     
     await message.reply(help_text)
 
-app.run()
+# Main function to keep the bot and Flask server running
+if __name__ == "__main__":
+    keep_alive()  # Start the Flask server
+    app.run()      # Start the Pyrogram bot
