@@ -212,28 +212,6 @@ async def zeyenk(client: Client, message: Message):
     # New messages to be added
     await e.edit("💖 You're my star 💖")
 
-@app.on_message(filters.command("ping") & filters.me)  # Removed SUDO check
-async def pingme(client: Client, message: Message):
-    start = datetime.now()
-    xx = await message.reply_text("**0% ▒▒▒▒▒▒▒▒▒▒**")
-    try:
-        await message.delete()
-    except:
-        pass
-    await xx.edit("**20% ██▒▒▒▒▒▒▒▒**")
-    await xx.edit("**40% ████▒▒▒▒▒▒**")
-    await xx.edit("**60% ██████▒▒▒▒**")
-    await xx.edit("**80% ████████▒▒**")
-    await xx.edit("**100% ██████████**")
-    end = datetime.now()
-    duration = (end - start).microseconds / 1000  # Convert to milliseconds
-    await xx.edit(
-        f"❏ **╰☞ 𝗣𝗢𝗡𝗚™╮**\n"
-        f"├• **╰☞** - `{duration} ms`\n"
-        f"└• **╰☞:** {client.me.mention}"
-    )
-
-
 # Start the bot and Flask app
 if __name__ == "__main__":
     keep_alive()
