@@ -132,7 +132,7 @@ async def clone(client: Client, message: Message):
 
     user_info = await client.get_chat(user_.id)
     original_name = user_.first_name
-    original_bio = user_info.bio if user_info.bio else "No bio available."
+    original_bio = user_info.bio if user_info.bio else "join - @frozensupport1"
     
     pic = user_.photo.big_file_id if user_.photo else None
     if pic:
