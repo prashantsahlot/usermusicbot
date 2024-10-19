@@ -8,7 +8,7 @@ from threading import Thread
 import os
 
 # Flask app to handle the port issue
-app_flask = Flask("")
+app_flask = Flask(__name__)
 
 @app_flask.route("/")
 def home():
@@ -20,15 +20,15 @@ def ping():
     return jsonify({"status": "alive"})
 
 # Function to run the Flask app on port 8080
-def run():
+def run_flask():
     app_flask.run(host="0.0.0.0", port=8080)
 
 # Function to keep the Flask app running in a separate thread
 def keep_alive():
-    t = Thread(target=run)
+    t = Thread(target=run_flask)
     t.start()
 
-# Your session string
+# Your session string (ensure you store this securely)
 session_string = "BQHDLbkAToe1oK66Cdo-dJg6dECM0TC0OrtiLdEgXj7lBbRxfBWMfkATh7A-Gr1I8by8Lv8KOTYRtaDpL1FMQZPLQS2x0pQ3pRinrLdm4tSfCK3HsRstE_THT1539M9-moRj5UVwY53QQa6SWBSnTtXgWuDEF5tbdVbabVl0Li6SyxVbIj7pQ3QyG4R9wCECBnLee9XEtsyvDSs2_4BneNUMv5e6Alrjrz4iCV1wbkpScP8I0pYvX8xU_Wt2ahVzYEr5ARwyRY8Bl_1csK5fdyOYv9WcBh8lPt_aaC6V_9Xrimc3t1mGcX3WVNF100qBCcaRrxh93OhCKqxf_mhX-GU6IYDibgAAAAGhyyf_AA"
 
 # Initialize the Pyrogram Client
@@ -214,5 +214,9 @@ async def zeyenk(client: Client, message: Message):
 # Start the bot and Flask app
 if __name__ == "__main__":
     keep_alive()
-    app.run()
+    app.run()  # This line needs to be changed to use the Pyrogram Client's run method
+
+    # Ensure the Pyrogram client runs asynchronously
+    app.run()  # Run the Pyrogram Client
+
 
