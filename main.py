@@ -152,28 +152,29 @@ async def clone(client: Client, message: Message):
 
 @app.on_message(filters.command("revert", ".") & filters.me)
 async def revert(client: Client, message: Message):
-    await message.edit("`Reverting`")
+    await message.edit("`Reverting...`")
     
     # Check if original name and bio are set
     if not original_name or not original_bio:
-        await message.edit("`Owner or Bio not set.`")
+        await message.edit("`Original name or bio not set.`")
         return
 
     try:
-        # Get your name back
+        # Update profile back to original name and bio
         await client.update_profile(
             first_name=original_name,
             bio=original_bio,
         )
 
-        # Delete first photo to revert to your original identity
+        # Delete the first photo to revert to your original identity
         photos = [p async for p in client.get_chat_photos("me")]
         if photos:
             await client.delete_profile_photos(photos[0].file_id)
 
-        await message.edit("`I am back!`")
+        await message.edit("`I am back to my original identity!`")
     except Exception as e:
         await message.edit(f"`Error reverting: {str(e)}`")
+
 
 
 @app.on_message(filters.command(["sayang", "lover"], ".") & filters.me)
