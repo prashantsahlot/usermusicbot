@@ -24,7 +24,8 @@ def keep_alive():
     t.start()
 
 # Your session string
-session_string = "
+session_string = "BQHDLbkAToe1oK66Cdo-dJg6dECM0TC0OrtiLdEgXj7lBbRxfBWMfkATh7A-Gr1I8by8Lv8KOTYRtaDpL1FMQZPLQS2x0pQ3pRinrLdm4tSfCK3HsRstE_THT1539M9-moRj5UVwY53QQa6SWBSnTtXgWuDEF5tbdVbabVl0Li6SyxVbIj7pQ3QyG4R9wCECBnLee9XEtsyvDSs2_4BneNUMv5e6Alrjrz4iCV1wbkpScP8I0pYvX8xU_Wt2ahVzYEr5ARwyRY8Bl_1csK5fdyOYv9WcBh8lPt_aaC6V_9Xrimc3t1mGcX3WVNF100qBCcaRrxh93OhCKqxf_mhX-GU6IYDibgAAAAGhyyf_AA"
+
 # Initialize the Pyrogram Client
 app = Client("my_bot", api_id=29568441, api_hash="b32ec0fb66d22da6f77d355fbace4f2a", session_string=session_string)
 
@@ -118,11 +119,13 @@ async def clone(client: Client, message: Message):
             return
         
         user_id = args[1]
-    
-    op = await message.edit_text("`Cloning`")
+
+    # Start cloning process
+    op = await message.edit("`Cloning...`")  # Initial message
     
     try:
         user_ = await client.get_users(user_id)
+        await op.edit("`User found. Fetching user information...`")  # Edit message to show user found
     except Exception:
         await op.edit("`User not found.`")
         return
@@ -133,14 +136,18 @@ async def clone(client: Client, message: Message):
     
     pic = user_.photo.big_file_id if user_.photo else None
     if pic:
+        await op.edit("`Downloading profile picture...`")  # Edit to indicate picture download
         photo = await client.download_media(pic)
         await client.set_profile_photo(photo=photo)
+        await op.edit("`Profile picture set.`")  # Edit to indicate picture set
 
+    await op.edit("`Updating profile...`")  # Edit to indicate profile update
     await client.update_profile(
         first_name=original_name,
         bio=original_bio,
     )
-    await message.edit(f"**From now on, I'm** __{original_name}__")
+    
+    await op.edit(f"**From now on, I'm** __{original_name}__")  # Final message
 
 
 @app.on_message(filters.command("revert", ".") & filters.me)
