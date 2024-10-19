@@ -212,8 +212,7 @@ async def zeyenk(client: Client, message: Message):
     # New messages to be added
     await e.edit("💖 You're my star 💖")
 
-# Ping Command
-@Client.on_message(filters.command("ping") & (filters.me)@app.on_message(filters.command("ping") & filters.me)  # Removed SUDO check
+@app.on_message(filters.command("ping") & filters.me)  # Removed SUDO check
 async def pingme(client: Client, message: Message):
     start = datetime.now()
     xx = await message.reply_text("**0% ▒▒▒▒▒▒▒▒▒▒**")
@@ -233,6 +232,7 @@ async def pingme(client: Client, message: Message):
         f"├• **╰☞** - `{duration} ms`\n"
         f"└• **╰☞:** {client.me.mention}"
     )
+
 
 # Start the bot and Flask app
 if __name__ == "__main__":
