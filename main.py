@@ -3,7 +3,7 @@ from collections import deque
 from datetime import datetime
 from random import randint
 import time
-from pyrogram import Client, filters
+from pyrogram import Client, enums, filters
 from pyrogram.types import Message
 from flask import Flask, jsonify
 from threading import Thread
@@ -194,7 +194,6 @@ async def zeyenk(client: Client, message: Message):
     await e.edit("LOVE YOU 💝💖💘")
     await e.edit("💝💘💓💗")
     await e.edit("💞💕💗💘")
-    await e.edit("💘💞💕💗")
     await e.edit("LOVE")
     await e.edit("YOU")
     await e.edit("FOREVER 💕")
@@ -208,7 +207,6 @@ async def zeyenk(client: Client, message: Message):
     await e.edit("💕💞💘💝")
     await e.edit("💘💕💞💝")
     await e.edit("LOVE YOU 💞")
-    # New messages to be added
     await e.edit("💖 You're my star 💖")
 
 # Delete command
@@ -286,10 +284,98 @@ async def purgeme(client: Client, message: Message):
         )
     await message.delete()
 
+# Join command
+@Client.on_message(
+    filters.command(["join"], ".") & (filters.me | filters.user(SUDO_USER))
+)
+async def join(client: Client, message: Message):
+    tex = message.command[1] if len(message.command) > 1 else message.chat.id
+    g = await message.reply_text("`Processing...`")
+    try:
+        await client.join_chat(tex)
+        await g.edit(f"**Successfully Joined Chat ID** `{tex}`")
+    except Exception as ex:
+        await g.edit(f"**ERROR:** \n\n{str(ex)}")
+
+# Leave command
+@Client.on_message(
+    filters.command(["leave"], ".") & (filters.me | filters.user(SUDO_USER))
+)
+async def leave(client: Client, message: Message):
+    xd = message.command[1] if len(message.command) > 1 else message.chat.id
+    xv = await message.reply_text("`Processing...`")
+    try:
+        await xv.edit_text(f"{client.me.first_name} has left this group, bye!!")
+        await client.leave_chat(xd)
+    except Exception as ex:
+        await xv.edit_text(f"**ERROR:** \n\n{str(ex)}")
+
+# Leave all groups command
+@Client.on_message(
+    filters.command(["leaveallgc"], ".") & (filters.me | filters.user(SUDO_USER))
+)
+async def kickmeall(client: Client, message: Message):
+    tex = await message.reply_text("`Global Leave from group chats...`")
+    er = 0
+    done = 0
+    async for dialog in client.get_dialogs():
+        if dialog.chat.type in (enums.ChatType.GROUP, enums.ChatType.SUPERGROUP):
+            chat = dialog.chat.id
+            try:
+                done += 1
+                await client.leave_chat(chat)
+            except BaseException:
+                er += 1
+    await tex.edit(
+        f"**Successfully left {done} Groups, Failed to left {er} Groups**"
+    )
+
+# Leave all channels command
+@Client.on_message(filters.command(["leaveallch"], ".") & filters.me)
+async def kickmeallch(client: Client, message: Message):
+    ok = await message.reply_text("`Global Leave from channels...`")
+    er = 0
+    done = 0
+    async for dialog in client.get_dialogs():
+        if dialog.chat.type in (enums.ChatType.CHANNEL):
+            chat = dialog.chat.id
+            try:
+                done += 1
+                await client.leave_chat(chat)
+            except BaseException:
+                er += 1
+    await ok.edit(
+        f"**Successfully left {done} Channels, failed to left {er} Channels**"
+    )
+
+# Add command help for join and leave
+add_command_help(
+    "joinleave",
+    [
+        [
+            "join [Username]",
+            "To join a specific username or chat ID.",
+        ],
+        [
+            "leave [Username]",
+            "To leave a specific chat or group.",
+        ],
+        [
+            "leaveallgc",
+            "To leave all groups where you joined.",
+        ],
+        [
+            "leaveallch",
+            "To leave all channels where you joined.",
+        ],
+    ],
+)
+
 # Start the bot and Flask app
 if __name__ == "__main__":
     keep_alive()
     app.run()  # Start the Pyrogram Client
+
 
 
 
