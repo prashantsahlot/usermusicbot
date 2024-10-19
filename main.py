@@ -3,7 +3,6 @@ from collections import deque
 from datetime import datetime
 from random import randint
 import time
-import speedtest
 from pyrogram import Client, filters
 from pyrogram.types import Message
 from flask import Flask, jsonify
@@ -213,50 +212,6 @@ async def zeyenk(client: Client, message: Message):
     # New messages to be added
     await e.edit("💖 You're my star 💖")
 
-
-# Speed Test Command
-class WWW:
-    SpeedTest = (
-        "Speedtest started at `{start}`\n\n"
-        "Ping:\n{ping} ms\n\n"
-        "Download:\n{download}\n\n"
-        "Upload:\n{upload}\n\n"
-        "ISP:\n__{isp}__"
-    )
-
-@app.on_message(filters.command("speedtest") & (filters.me | filters.user(os.environ.get("SUDO_USER"))))
-async def speed_test(client: Client, message: Message):
-    new_msg = await message.reply_text("`Running speed test . . .`")
-    try:
-        await message.delete()
-    except:
-        pass
-    spd = speedtest.Speedtest()
-
-    new_msg = await new_msg.edit(f"`{new_msg.text}`\n" "`Getting best server based on ping . . .`")
-    spd.get_best_server()
-
-    new_msg = await new_msg.edit(f"`{new_msg.text}`\n" "`Testing download speed . . .`")
-    spd.download()
-
-    new_msg = await new_msg.edit(f"`{new_msg.text}`\n" "`Testing upload speed . . .`")
-    spd.upload()
-
-    new_msg = await new_msg.edit(
-        f"`{new_msg.text}`\n" "`Getting results and preparing formatting . . .`"
-    )
-    results = spd.results.dict()
-
-    await new_msg.edit(
-        WWW.SpeedTest.format(
-            start=results["timestamp"],
-            ping=results["ping"],
-            download=results["download"] / 1_000_000,  # Convert to Mbps
-            upload=results["upload"] / 1_000_000,      # Convert to Mbps
-            isp=results["client"]["isp"],
-        )
-    )
-
 # Ping Command
 @Client.on_message(filters.command("ping") & (filters.me | filters.user(os.environ.get("SUDO_USER"))))
 async def pingme(client: Client, message: Message):
@@ -283,5 +238,6 @@ async def pingme(client: Client, message: Message):
 if __name__ == "__main__":
     keep_alive()
     app.run()  # Start the Pyrogram Client
+
 
 
