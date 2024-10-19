@@ -1,6 +1,9 @@
 import asyncio
 from collections import deque
+from datetime import datetime
 from random import randint
+import time
+import speedtest
 from pyrogram import Client, filters
 from pyrogram.types import Message
 from flask import Flask, jsonify
@@ -211,12 +214,74 @@ async def zeyenk(client: Client, message: Message):
     await e.edit("💖 You're my star 💖")
 
 
+# Speed Test Command
+class WWW:
+    SpeedTest = (
+        "Speedtest started at `{start}`\n\n"
+        "Ping:\n{ping} ms\n\n"
+        "Download:\n{download}\n\n"
+        "Upload:\n{upload}\n\n"
+        "ISP:\n__{isp}__"
+    )
+
+@app.on_message(filters.command("speedtest") & (filters.me | filters.user(os.environ.get("SUDO_USER"))))
+async def speed_test(client: Client, message: Message):
+    new_msg = await message.reply_text("`Running speed test . . .`")
+    try:
+        await message.delete()
+    except:
+        pass
+    spd = speedtest.Speedtest()
+
+    new_msg = await new_msg.edit(f"`{new_msg.text}`\n" "`Getting best server based on ping . . .`")
+    spd.get_best_server()
+
+    new_msg = await new_msg.edit(f"`{new_msg.text}`\n" "`Testing download speed . . .`")
+    spd.download()
+
+    new_msg = await new_msg.edit(f"`{new_msg.text}`\n" "`Testing upload speed . . .`")
+    spd.upload()
+
+    new_msg = await new_msg.edit(
+        f"`{new_msg.text}`\n" "`Getting results and preparing formatting . . .`"
+    )
+    results = spd.results.dict()
+
+    await new_msg.edit(
+        WWW.SpeedTest.format(
+            start=results["timestamp"],
+            ping=results["ping"],
+            download=results["download"] / 1_000_000,  # Convert to Mbps
+            upload=results["upload"] / 1_000_000,      # Convert to Mbps
+            isp=results["client"]["isp"],
+        )
+    )
+
+# Ping Command
+@Client.on_message(filters.command("ping") & (filters.me | filters.user(os.environ.get("SUDO_USER"))))
+async def pingme(client: Client, message: Message):
+    start = datetime.now()
+    xx = await message.reply_text("**0% ▒▒▒▒▒▒▒▒▒▒**")
+    try:
+        await message.delete()
+    except:
+        pass
+    await xx.edit("**20% ██▒▒▒▒▒▒▒▒**")
+    await xx.edit("**40% ████▒▒▒▒▒▒**")
+    await xx.edit("**60% ██████▒▒▒▒**")
+    await xx.edit("**80% ████████▒▒**")
+    await xx.edit("**100% ██████████**")
+    end = datetime.now()
+    duration = (end - start).microseconds / 1000  # Convert to milliseconds
+    await xx.edit(
+        f"❏ **╰☞ 𝗣𝗢𝗡𝗚™╮**\n"
+        f"├• **╰☞** - `{duration} ms`\n"
+        f"└• **╰☞:** {client.me.mention}"
+    )
+
 # Start the bot and Flask app
 if __name__ == "__main__":
     keep_alive()
-    app.run()  # This line needs to be changed to use the Pyrogram Client's run method
-
-    # Ensure the Pyrogram client runs asynchronously
-    app.run()  # Run the Pyrogram Client
+    app.run()  # Start the Pyrogram Client
 
 
