@@ -213,7 +213,7 @@ async def zeyenk(client: Client, message: Message):
     await e.edit("💖 You're my star 💖")
 
 # Ping Command
-@Client.on_message(filters.command("ping") & (filters.me)
+@Client.on_message(filters.command("ping") & (filters.me)@app.on_message(filters.command("ping") & filters.me)  # Removed SUDO check
 async def pingme(client: Client, message: Message):
     start = datetime.now()
     xx = await message.reply_text("**0% ▒▒▒▒▒▒▒▒▒▒**")
