@@ -284,9 +284,13 @@ async def purgeme(client: Client, message: Message):
         )
     await message.delete()
 
-# Join command
+from pyrogram import Client, enums, filters
+from pyrogram.types import Message
+
+from Zaid.modules.help import add_command_help
+
 @Client.on_message(
-    filters.command(["join"], ".") & (filters.me | filters.user(SUDO_USER))
+    filters.command(["join"], ".") & filters.me
 )
 async def join(client: Client, message: Message):
     tex = message.command[1] if len(message.command) > 1 else message.chat.id
@@ -297,9 +301,9 @@ async def join(client: Client, message: Message):
     except Exception as ex:
         await g.edit(f"**ERROR:** \n\n{str(ex)}")
 
-# Leave command
+
 @Client.on_message(
-    filters.command(["leave"], ".") & (filters.me | filters.user(SUDO_USER))
+    filters.command(["leave"], ".") & filters.me
 )
 async def leave(client: Client, message: Message):
     xd = message.command[1] if len(message.command) > 1 else message.chat.id
@@ -310,9 +314,9 @@ async def leave(client: Client, message: Message):
     except Exception as ex:
         await xv.edit_text(f"**ERROR:** \n\n{str(ex)}")
 
-# Leave all groups command
+
 @Client.on_message(
-    filters.command(["leaveallgc"], ".") & (filters.me | filters.user(SUDO_USER))
+    filters.command(["leaveallgc"], ".") & filters.me
 )
 async def kickmeall(client: Client, message: Message):
     tex = await message.reply_text("`Global Leave from group chats...`")
@@ -330,10 +334,10 @@ async def kickmeall(client: Client, message: Message):
         f"**Successfully left {done} Groups, Failed to left {er} Groups**"
     )
 
-# Leave all channels command
+
 @Client.on_message(filters.command(["leaveallch"], ".") & filters.me)
 async def kickmeallch(client: Client, message: Message):
-    ok = await message.reply_text("`Global Leave from channels...`")
+    ok = await message.reply_text("`Global Leave from channel...`")
     er = 0
     done = 0
     async for dialog in client.get_dialogs():
@@ -345,29 +349,21 @@ async def kickmeallch(client: Client, message: Message):
             except BaseException:
                 er += 1
     await ok.edit(
-        f"**Successfully left {done} Channels, failed to left {er} Channels**"
+        f"**Successfully left {done} Channel, failed to left {er} Channel**"
     )
 
-# Add command help for join and leave
+
 add_command_help(
     "joinleave",
     [
         [
-            "join [Username]",
-            "To join a specific username or chat ID.",
+            "kickme",
+            "To leave!!. ",
         ],
-        [
-            "leave [Username]",
-            "To leave a specific chat or group.",
-        ],
-        [
-            "leaveallgc",
-            "To leave all groups where you joined.",
-        ],
-        [
-            "leaveallch",
-            "To leave all channels where you joined.",
-        ],
+        ["leaveallgc", "to leave all groups where you joined."],
+        ["leaveallch", "to leave all channels where you joined."],
+        ["join [Username]", "give a specific username to join."],
+        ["leave [Username]", "give a specific username to leave."],
     ],
 )
 
