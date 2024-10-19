@@ -3,7 +3,7 @@ from collections import deque
 from random import randint
 from pyrogram import Client, filters
 from pyrogram.types import Message
-from flask import Flask
+from flask import Flask, jsonify
 from threading import Thread
 import os
 
@@ -13,6 +13,11 @@ app_flask = Flask("")
 @app_flask.route("/")
 def home():
     return "Bot is running!"
+
+# Health check endpoint
+@app_flask.route("/ping")
+def ping():
+    return jsonify({"status": "alive"})
 
 # Function to run the Flask app on port 8080
 def run():
@@ -174,7 +179,6 @@ async def revert(client: Client, message: Message):
         await message.edit("`I am back to my original identity!`")
     except Exception as e:
         await message.edit(f"`Error reverting: {str(e)}`")
-
 
 
 @app.on_message(filters.command(["sayang", "lover"], ".") & filters.me)
