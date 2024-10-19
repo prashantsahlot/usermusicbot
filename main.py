@@ -289,6 +289,7 @@ from pyrogram.types import Message
 
 from Zaid.modules.help import add_command_help
 
+#join fuction
 @Client.on_message(
     filters.command(["join"], ".") & filters.me
 )
