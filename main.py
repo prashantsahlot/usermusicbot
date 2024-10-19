@@ -8,6 +8,7 @@ from pyrogram.types import Message
 from flask import Flask, jsonify
 from threading import Thread
 import os
+from asyncio import sleep
 
 # Flask app to handle the port issue
 app_flask = Flask(__name__)
@@ -284,13 +285,8 @@ async def purgeme(client: Client, message: Message):
         )
     await message.delete()
 
-from pyrogram import Client, enums, filters
-from pyrogram.types import Message
-
-from Zaid.modules.help import add_command_help
-
-#join fuction
-@Client.on_message(
+# Join function
+@app.on_message(
     filters.command(["join"], ".") & filters.me
 )
 async def join(client: Client, message: Message):
@@ -303,7 +299,7 @@ async def join(client: Client, message: Message):
         await g.edit(f"**ERROR:** \n\n{str(ex)}")
 
 
-@Client.on_message(
+@app.on_message(
     filters.command(["leave"], ".") & filters.me
 )
 async def leave(client: Client, message: Message):
@@ -316,62 +312,12 @@ async def leave(client: Client, message: Message):
         await xv.edit_text(f"**ERROR:** \n\n{str(ex)}")
 
 
-@Client.on_message(
-    filters.command(["leaveallgc"], ".") & filters.me
-)
-async def kickmeall(client: Client, message: Message):
-    tex = await message.reply_text("`Global Leave from group chats...`")
-    er = 0
-    done = 0
-    async for dialog in client.get_dialogs():
-        if dialog.chat.type in (enums.ChatType.GROUP, enums.ChatType.SUPERGROUP):
-            chat = dialog.chat.id
-            try:
-                done += 1
-                await client.leave_chat(chat)
-            except BaseException:
-                er += 1
-    await tex.edit(
-        f"**Successfully left {done} Groups, Failed to left {er} Groups**"
-    )
-
-
-@Client.on_message(filters.command(["leaveallch"], ".") & filters.me)
-async def kickmeallch(client: Client, message: Message):
-    ok = await message.reply_text("`Global Leave from channel...`")
-    er = 0
-    done = 0
-    async for dialog in client.get_dialogs():
-        if dialog.chat.type in (enums.ChatType.CHANNEL):
-            chat = dialog.chat.id
-            try:
-                done += 1
-                await client.leave_chat(chat)
-            except BaseException:
-                er += 1
-    await ok.edit(
-        f"**Successfully left {done} Channel, failed to left {er} Channel**"
-    )
-
-
-add_command_help(
-    "joinleave",
-    [
-        [
-            "kickme",
-            "To leave!!. ",
-        ],
-        ["leaveallgc", "to leave all groups where you joined."],
-        ["leaveallch", "to leave all channels where you joined."],
-        ["join [Username]", "give a specific username to join."],
-        ["leave [Username]", "give a specific username to leave."],
-    ],
-)
 
 # Start the bot and Flask app
 if __name__ == "__main__":
     keep_alive()
     app.run()  # Start the Pyrogram Client
+
 
 
 
