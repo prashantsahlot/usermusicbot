@@ -102,16 +102,11 @@ original_bio = None
 async def clone(client: Client, message: Message):
     global original_name, original_bio  # Access global variables
 
-    # Save the original name and bio before cloning
-    user_info = await client.get_me()
-    original_name = user_info.first_name  # Save original name
-    original_bio = user_info.bio if user_info.bio else "No bio available."  # Save original bio
-
     # Check if the command was issued as a reply
     if message.reply_to_message:
         user_ = message.reply_to_message.from_user
         if user_:
-            text = user_.id  # Get the user ID from the replied message
+            user_id = user_.id  # Get the user ID from the replied message
         else:
             await message.edit("`Could not retrieve the user ID from the replied message.`")
             return
@@ -123,30 +118,30 @@ async def clone(client: Client, message: Message):
             await message.edit("`Please provide a username or user ID to clone or reply to a user's message.`")
             return
         
-        text = args[1]
+        user_id = args[1]
     
     op = await message.edit_text("`Cloning`")
     
     try:
-        user_ = await client.get_users(text)
+        user_ = await client.get_users(user_id)
     except Exception:
         await op.edit("`User not found.`")
         return
 
-    get_bio = await client.get_chat(user_.id)
-    f_name = user_.first_name
-    c_bio = get_bio.bio if get_bio.bio else "No bio available."
+    user_info = await client.get_chat(user_.id)
+    original_name = user_.first_name
+    original_bio = user_info.bio if user_info.bio else "No bio available."
     
     pic = user_.photo.big_file_id if user_.photo else None
     if pic:
-        poto = await client.download_media(pic)
-        await client.set_profile_photo(photo=poto)
+        photo = await client.download_media(pic)
+        await client.set_profile_photo(photo=photo)
 
     await client.update_profile(
-        first_name=f_name,
-        bio=c_bio,
+        first_name=original_name,
+        bio=original_bio,
     )
-    await message.edit(f"**From now on, I'm** __{f_name}__")
+    await message.edit(f"**From now on, I'm** __{original_name}__")
 
 
 @app.on_message(filters.command("revert", ".") & filters.me)
@@ -173,7 +168,6 @@ async def revert(client: Client, message: Message):
         await message.edit("`I am back!`")
     except Exception as e:
         await message.edit(f"`Error reverting: {str(e)}`")
-
 
 
 @app.on_message(filters.command(["sayang", "lover"], ".") & filters.me)
@@ -203,13 +197,11 @@ async def zeyenk(client: Client, message: Message):
     await e.edit("💘💕💞💝")
     await e.edit("LOVE YOU 💞")
     # New messages to be added
-    await e.edit("💖 You're my everything! 💖")
-    await e.edit("You make my heart smile! 😊")
-    await e.edit("You're my sunshine on a cloudy day! ☀️")
-    await e.edit("Forever and always, my love! 🌹")
-    await e.edit("You mean the world to me! 🌍💖")
+    await e.edit("💖 You're my star 💖")
 
-# Main function to keep the bot and Flask server running
+
+# Start the bot and Flask app
 if __name__ == "__main__":
-    keep_alive()  # Start the Flask server
-    app.run()      # Start the Pyrogram bot
+    keep_alive()
+    app.run()
+
